@@ -1,0 +1,49 @@
+project:
+  name: ms17-trial
+  output: results/ms17-trial-v1
+  random_seed: 20260904
+
+observations:
+  mock_epochs: synthetic_data/all_epochs.fits
+  subsamples:
+    - name: all
+      members: synthetic_data/FEH0/loa_mem.fits
+
+model:
+  name: ms17
+  # Uses the bundled trial table; optional period_table overrides it.
+  environment: none  # or umi_legacy; does not alter the table domain
+  include_unrestricted: true
+  period_limits_days: [100]
+
+mock:
+  samples: 16
+  error_floor:
+    values_kms: [0.0, 0.4]
+    prior: uniform
+
+pdf:
+  bins: 20
+  export_legacy_npy: false
+
+statistics:
+  mode: consistent
+
+mcmc:
+  walkers: 10
+  steps: 60
+  burn_in: 10
+  credible_intervals: [0.68, 0.95]
+  allow_unconverged: true
+
+execution:
+  mpi_ranks: 4
+  hdf5_mode: shards
+  resume: true
+
+scheduler:
+  walltime: "00:15:00"
+  memory: 4G
+  queue: normal
+  account: null
+  conda_environment: rvbinary

@@ -1,0 +1,41 @@
+name: tests
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.12", "3.13", "3.14"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+      - run: python -m pip install --upgrade pip
+      - run: python -m pip install ".[test]"
+      - run: ruff check src tests
+      - run: python -m pytest -m "not mpi and not mpi_hdf5" -v --junitxml=test-results.xml
+      - if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: failure-artifacts-py${{ matrix.python-version }}
+          path: |
+            test-results.xml
+            .pytest_cache
+
+  gui:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: python -m pip install ".[test,gui]"
+      - run: python -m pytest tests/unit/test_generator.py tests/unit/test_gui_launcher.py tests/unit/test_gui_plots.py tests/unit/test_gui_state.py tests/integration/test_gui_app.py -q

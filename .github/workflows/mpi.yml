@@ -1,0 +1,27 @@
+name: mpi-smoke
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  mpich:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: sudo apt-get update && sudo apt-get install -y mpich libmpich-dev
+      - run: python -m pip install --upgrade pip
+      - run: python -m pip install ".[mpi,test]"
+      - name: Deterministic three-rank comparison
+        run: mpiexec -n 3 python -m pytest -v tests/integration/test_mock_mpi.py::test_real_mpi_generation_matches_serial --junitxml=mpi-results.xml
+      - if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: mpi-failure-artifacts
+          path: |
+            mpi-results.xml
+            .pytest_cache

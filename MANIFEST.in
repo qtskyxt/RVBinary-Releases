@@ -1,0 +1,12 @@
+include RELEASE_NOTES.md
+include CHANGELOG.md
+include CITATION.cff
+include environment.yml
+include environment-mpich.yml
+include environment-openmpi.yml
+recursive-include docs *.md
+recursive-include examples *.py *.yaml
+prune examples/results
+prune examples/synthetic_data
+
+recursive-include src/rvbinary/data *.dat *.md

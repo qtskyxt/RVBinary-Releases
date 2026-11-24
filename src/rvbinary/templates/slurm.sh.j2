@@ -1,0 +1,25 @@
+#!/bin/bash
+#SBATCH --job-name={{ job_name }}
+#SBATCH --ntasks={{ ranks }}
+#SBATCH --time={{ walltime }}
+#SBATCH --mem={{ memory }}
+#SBATCH --partition={{ queue }}
+{% if account %}#SBATCH --account={{ account }}
+{% endif %}#SBATCH --output={{ log_dir }}/slurm-%j.out
+
+set -euo pipefail
+mkdir -p {{ log_dir }}
+{% if conda_init %}source {{ conda_init }}
+{% else %}source "$(conda info --base)/etc/profile.d/conda.sh"
+{% endif %}
+conda activate {{ conda_environment }}
+export OMP_NUM_THREADS=1
+export OPENBLAS_NUM_THREADS=1
+export MKL_NUM_THREADS=1
+export NUMEXPR_NUM_THREADS=1
+
+{% if not precomputed %}srun --ntasks={{ ranks }} rvbinary mock {{ config_path }}
+{% endif %}srun --ntasks={{ ranks }} rvbinary pdf {{ config_path }}
+{% if precomputed %}rvbinary mcmc {{ config_path }}
+{% else %}rvbinary run {{ config_path }}
+{% endif %}

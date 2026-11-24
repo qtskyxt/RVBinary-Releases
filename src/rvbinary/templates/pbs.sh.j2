@@ -1,0 +1,25 @@
+#!/bin/bash
+#PBS -N {{ job_name }}
+#PBS -l select=1:ncpus={{ ranks }}:mpiprocs={{ ranks }}:mem={{ memory }}
+#PBS -l walltime={{ walltime }}
+#PBS -q {{ queue }}
+{% if account %}#PBS -A {{ account }}
+{% endif %}#PBS -o {{ log_dir }}/pbs-$PBS_JOBID.out
+#PBS -j oe
+
+set -euo pipefail
+mkdir -p {{ log_dir }}
+{% if conda_init %}source {{ conda_init }}
+{% else %}source "$(conda info --base)/etc/profile.d/conda.sh"
+{% endif %}
+conda activate {{ conda_environment }}
+export OMP_NUM_THREADS=1
+export OPENBLAS_NUM_THREADS=1
+export MKL_NUM_THREADS=1
+export NUMEXPR_NUM_THREADS=1
+
+{% if not precomputed %}mpiexec -n {{ ranks }} rvbinary mock {{ config_path }}
+{% endif %}mpiexec -n {{ ranks }} rvbinary pdf {{ config_path }}
+{% if precomputed %}rvbinary mcmc {{ config_path }}
+{% else %}rvbinary run {{ config_path }}
+{% endif %}

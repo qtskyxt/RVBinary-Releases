@@ -1,0 +1,48 @@
+project:
+  name: desi_example
+  output: results/desi_example
+  random_seed: 20260904
+
+observations:
+  mock_epochs: synthetic_data/all_epochs.fits
+  subsamples:
+    - name: FEH0
+      members: synthetic_data/FEH0/loa_mem.fits
+
+model:
+  name: dm91
+  log10_period_mean: 4.8
+  log10_period_sigma: 2.3
+  include_unrestricted: true
+  period_limits_days: [10, 100, 1000, 10000]
+
+mock:
+  samples: 10000
+  error_floor:
+    values_kms: [0.0, 0.2, 0.4, 0.6, 0.8, 1.0]
+    prior: uniform
+
+pdf:
+  bins: 100
+  export_legacy_npy: false
+
+statistics:
+  mode: consistent
+
+mcmc:
+  walkers: 32
+  steps: 5000
+  burn_in: 1000
+  credible_intervals: [0.68, 0.95]
+  allow_unconverged: false
+
+execution:
+  mpi_ranks: 32
+  hdf5_mode: shards
+  resume: true
+
+scheduler:
+  walltime: "24:00:00"
+  memory: 64G
+  queue: normal
+  account: null

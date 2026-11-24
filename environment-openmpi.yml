@@ -1,0 +1,19 @@
+name: rvbinary-openmpi
+channels:
+  - conda-forge
+dependencies:
+  - python>=3.11,<3.15
+  - astropy>=5.3,<8
+  - emcee>=3.1,<4
+  - h5py=*=mpi_openmpi_*
+  - jinja2>=3.1,<4
+  - matplotlib>=3.8,<4
+  - mpi4py>=3.1,<5
+  - numpy>=1.22,<3
+  - openmpi
+  - pydantic>=2.7,<3
+  - pyyaml>=6,<7
+  - typer>=0.12,<1
+  - pip
+  - pip:
+      - -e .

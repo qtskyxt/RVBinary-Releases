@@ -1,0 +1,4 @@
+# Install this checkout, including its optional browser interface.
+.[gui]
+# Match the interface version already verified on Gravity.
+streamlit==1.51.0
